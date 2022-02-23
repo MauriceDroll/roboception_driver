@@ -1,23 +1,27 @@
+##############################################################################
+##                                 Base Image                               ##
+##############################################################################
 ARG ROS_DISTRO=foxy
 FROM ros:${ROS_DISTRO}-ros-base
 ENV TZ=Europe/Berlin
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt update
-RUN apt install -y python3-rosdep2 
-RUN rosdep update
-RUN apt update
-RUN apt -y dist-upgrade
 
-RUN apt install python3-colcon-common-extensions python3-vcstool 
+##############################################################################
+##                                 Global Dependecies                       ##
+##############################################################################
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    ros-${ROS_DISTRO}-rc-common-msgs \
+    ros-${ROS_DISTRO}-diagnostic-updater \
+    ros-${ROS_DISTRO}-image-transport \
+    ros-${ROS_DISTRO}-rc-genicam-api \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN apt install -y ros-foxy-rc-common-msgs \
-    ros-foxy-diagnostic-updater \
-    ros-foxy-image-transport \
-    ros-foxy-rc-genicam-api
-
-ARG USER=robot
-ARG PASSWORD=robot
+##############################################################################
+##                                 Create User                              ##
+##############################################################################
+ARG USER=docker
+ARG PASSWORD=petra
 ARG UID=1000
 ARG GID=1000
 ARG DOMAIN_ID=0
@@ -25,27 +29,30 @@ ENV UID=${UID}
 ENV GID=${GID}
 ENV USER=${USER}
 RUN groupadd -g "$GID" "$USER"  && \
-  useradd -m -u "$UID" -g "$GID" --shell $(which bash) "$USER" -G sudo && \
-  echo "$USER:$PASSWORD" | chpasswd && \
-  echo "%sudo ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/sudogrp
-
+    useradd -m -u "$UID" -g "$GID" --shell $(which bash) "$USER" -G sudo && \
+    echo "$USER:$PASSWORD" | chpasswd && \
+    echo "%sudo ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/sudogrp
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> /etc/bash.bashrc
-RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> /etc/bash.bashrc
-RUN echo "export _colcon_cd_root=~/ros2_install" >> /etc/bash.bashrc
 RUN echo "export ROS_DOMAIN_ID=${DOMAIN_ID}" >> /etc/bash.bashrc
 
 USER $USER 
-RUN rosdep update
+RUN mkdir -p /home/$USER/ros2_ws/src
 
-RUN mkdir -p /home/"$USER"/ros_ws/src
+##############################################################################
+##                                 User Dependecies                         ##
+##############################################################################
+WORKDIR /home/$USER/ros2_ws/src
+RUN git clone --depth 1 https://github.com/roboception/rc_genicam_driver_ros2.git
 
-# Copy /ros folder in docker ros_ws
-COPY /ros/. /home/"$USER"/ros_ws/src
+##############################################################################
+##                                 Build ROS and run                        ##
+##############################################################################
+WORKDIR /home/$USER/ros2_ws
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && colcon build --symlink-install
+RUN echo "source /home/$USER/ros2_ws/install/setup.bash" >> /home/$USER/.bashrc
 
-RUN cd /home/"$USER"/ros_ws && . /opt/ros/$ROS_DISTRO/setup.sh && colcon build --symlink-install
-RUN echo "source /home/$USER/ros_ws/install/setup.bash" >> /home/$USER/.bashrc
+RUN sudo sed --in-place --expression \
+    '$isource "/home/$USER/ros2_ws/install/setup.bash"' \
+    /ros_entrypoint.sh
 
-WORKDIR /home/$USER/ros_ws
-
-CMD /bin/bash
-
+CMD ["ros2", "run", "rc_genicam_driver", "rc_genicam_driver"]
