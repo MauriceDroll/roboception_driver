@@ -55,4 +55,4 @@ RUN sudo sed --in-place --expression \
     '$isource "/home/$USER/ros2_ws/install/setup.bash"' \
     /ros_entrypoint.sh
 
-CMD ["ros2", "run", "rc_genicam_driver", "rc_genicam_driver"]
+CMD ["ros2", "run", "rc_genicam_driver", "rc_genicam_driver", "--ros-args", "-r", "/stereo/left/image_rect_color:=/image"]
