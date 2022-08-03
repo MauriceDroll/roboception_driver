@@ -57,5 +57,5 @@ RUN sudo sed --in-place --expression \
     /ros_entrypoint.sh
 
 
-CMD ["ros2", "run", "rc_genicam_driver", "rc_genicam_driver", "--ros-args", "-p", "ptp_enabled:=true", "-r", "/stereo/left/image_rect_color:=/image"]
+CMD ["ros2", "run", "rc_genicam_driver", "rc_genicam_driver", "--ros-args", "-p", "ptp_enabled:=true", "-r", "/stereo/left/image_rect_color:=/image", "-r", "/stereo/left/camera_info:=/camera_info"]
 # CMD /bin/bash
