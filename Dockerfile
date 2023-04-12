@@ -36,6 +36,10 @@ RUN groupadd -g "$GID" "$USER"  && \
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> /etc/bash.bashrc
 RUN echo "export ROS_DOMAIN_ID=${DOMAIN_ID}" >> /etc/bash.bashrc
 
+COPY dds_profile.xml /home/$USER
+RUN chown $USER:$USER /home/$USER/dds_profile.xml
+ENV FASTRTPS_DEFAULT_PROFILES_FILE=/home/$USER/dds_profile.xml
+
 USER $USER 
 RUN mkdir -p /home/$USER/ros2_ws/src
 
