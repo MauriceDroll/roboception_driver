@@ -17,9 +17,9 @@ echo "$PASSWORD" | sudo -S ptpd --masteronly --foreground -i eno1 &
 
 
 
-docker build --build-arg UID="$uid" --build-arg GID="$gid" -t roboception_driver/ros:foxy .
+# docker build --build-arg UID="$uid" --build-arg GID="$gid" -t roboception_driver/ros:foxy .
 echo "Run Container"
 xhost + local:root
 
 docker run --name roboception_driver --privileged -it -e DISPLAY=$DISPLAY \
-       -v /dev:/dev --net host --rm --ipc host roboception_driver/ros:foxy
+       -v /dev:/dev --net host --rm roboception_driver/ros:foxy
