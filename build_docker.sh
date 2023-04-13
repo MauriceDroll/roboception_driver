@@ -15,6 +15,8 @@ echo "$PASSWORD" | sudo -S ifconfig eno1 mtu 9000 up
 
 echo "$PASSWORD" | sudo -S ptpd --masteronly --foreground -i eno1 &
 
+docker build --build-arg UID="$uid" --build-arg GID="$gid" -t roboception_driver/ros:foxy .
+
 echo "Run Container"
 xhost + local:root
 
