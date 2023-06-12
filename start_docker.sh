@@ -1,20 +1,5 @@
 #!/bin/sh
 
-chmod a+x start_docker.sh
-
-uid=$(eval "id -u")
-gid=$(eval "id -g")
-USER=nuc
-PASSWORD=petra
-
-# Mac user:
-# uid=1000
-# gid=1000
-
-echo "$PASSWORD" | sudo -S ifconfig eno1 mtu 9000 up
-
-echo "$PASSWORD" | sudo -S ptpd --masteronly --foreground -i eno1 &
-
 echo "Run Container"
 xhost + local:root
 
