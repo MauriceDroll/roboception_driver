@@ -1,7 +1,7 @@
 ##############################################################################
 ##                                 Base Image                               ##
 ##############################################################################
-ARG ROS_DISTRO=foxy
+ARG ROS_DISTRO=humble
 FROM ros:${ROS_DISTRO}-ros-base
 ENV TZ=Europe/Berlin
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -21,11 +21,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 ##                                 Create User                              ##
 ##############################################################################
 ARG USER=docker
-ARG PASSWORD=petra
+ARG PASSWORD=docker
 ARG UID=1000
 ARG GID=1000
-ARG DOMAIN_ID=8
-ENV ROS_DOMAIN_ID=${DOMAIN_ID}
 ENV UID=${UID}
 ENV GID=${GID}
 ENV USER=${USER}
@@ -34,7 +32,6 @@ RUN groupadd -g "$GID" "$USER"  && \
     echo "$USER:$PASSWORD" | chpasswd && \
     echo "%sudo ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/sudogrp
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> /etc/bash.bashrc
-RUN echo "export ROS_DOMAIN_ID=${DOMAIN_ID}" >> /etc/bash.bashrc
 
 COPY dds_profile.xml /home/$USER
 RUN chown $USER:$USER /home/$USER/dds_profile.xml

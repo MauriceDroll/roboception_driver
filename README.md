@@ -4,6 +4,12 @@ This is the ROS2 driver for the Roboception rc_visard camera. It is completly ru
 
 ## How to run
 
+### Set the ROS_DOMAIN_ID
+```yaml
+# In /.env
+ROS_DOMAIN_ID=66
+```
+
 ### Linux
 Simply build and run the docker container with:
 ```bash
