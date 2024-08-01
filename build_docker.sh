@@ -7,4 +7,4 @@ gid=$(eval "id -g")
 # uid=1000
 # gid=1000
 
-docker build --build-arg UID="$uid" --build-arg GID="$gid" -t roboception_driver/ros:humble .
+docker build -t roboception_driver/ros:humble .

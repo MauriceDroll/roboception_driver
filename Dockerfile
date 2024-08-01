@@ -12,10 +12,9 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update && apt-get install --no-install-recommends -y \
     ros-${ROS_DISTRO}-rc-common-msgs \
     ros-${ROS_DISTRO}-diagnostic-updater \
-    ros-${ROS_DISTRO}-image-transport \
-    ros-${ROS_DISTRO}-rc-genicam-api \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    ros-${ROS_DISTRO}-rc-genicam-api 
+    #&& apt-get clean \
+    #&& rm -rf /var/lib/apt/lists/*
 
 ##############################################################################
 ##                                 Create User                              ##
@@ -44,6 +43,7 @@ RUN mkdir -p /home/$USER/ros2_ws/src
 ##                                 User Dependecies                         ##
 ##############################################################################
 WORKDIR /home/$USER/ros2_ws/src
+RUN git clone https://github.com/ros-perception/image_common.git && cd image_common && git checkout e947b47a45971e3edb59d8e34bc8e7cd2a41f2e6 && cd ..
 RUN git clone --depth 1 https://github.com/roboception/rc_genicam_driver_ros2.git
 
 ##############################################################################

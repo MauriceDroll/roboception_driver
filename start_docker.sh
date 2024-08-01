@@ -8,7 +8,7 @@ docker run \
        -it \
        -e DISPLAY=$DISPLAY \
        --env-file .env \
-       -v /dev:/dev \
+       -v $PWD/Test:/home/robot/ros_ws:rw \
        --net host \
        --rm \
        roboception_driver/ros:humble
